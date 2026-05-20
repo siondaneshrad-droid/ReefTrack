@@ -166,6 +166,7 @@ tr:last-child td{border-bottom:none}
       notifyButton: { enable: false },
       allowLocalhostAsSecureOrigin: true,
       serviceWorkerPath: '/ReefTrack/OneSignalSDKWorker.js',
+      serviceWorkerParam: { scope: '/ReefTrack/' },
     });
   });
 </script>
@@ -1386,34 +1387,33 @@ async function sendDashAI(){
 }
 
 async function sendDashAIMsg(message){
-  const s = getSettings();
   renderDashAIMessage('user', message);
   dashAIHistory.push({role:'user', content: message});
-
   const thinking = document.getElementById('dash-ai-thinking');
   if(thinking) thinking.style.display = 'block';
-
   try{
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 30000);
     const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
         system: getTankContext(),
         messages: dashAIHistory
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
     const data = await response.json();
-    const reply = data.content?.[0]?.text || 'Sorry, could not get a response.';
+    const reply = data.content?.[0]?.text || 'Error: '+JSON.stringify(data).slice(0,100);
     if(thinking) thinking.style.display = 'none';
     dashAIHistory.push({role:'assistant', content: reply});
     renderDashAIMessage('assistant', reply);
   } catch(e){
     if(thinking) thinking.style.display = 'none';
-    renderDashAIMessage('assistant', 'Connection error. Please try again.');
+    renderDashAIMessage('assistant', 'Error: '+e.message);
   }
 }
 
