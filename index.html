@@ -1394,13 +1394,10 @@ async function sendDashAIMsg(message){
   if(thinking) thinking.style.display = 'block';
 
   try{
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': CLAUDE_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -1521,13 +1518,10 @@ async function askAI(message){
 
   try {
     const systemPrompt = getTankContext();
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': CLAUDE_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -1598,13 +1592,10 @@ async function aiLookupInhabitant(){
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': CLAUDE_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
