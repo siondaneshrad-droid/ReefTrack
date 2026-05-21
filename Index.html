@@ -1398,7 +1398,7 @@ async function sendDashAIMsg(message){
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1024,
         system: getTankContext(),
         messages: dashAIHistory
@@ -1524,7 +1524,7 @@ async function askAI(message){
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1024,
         system: systemPrompt,
         messages: aiChatHistory
@@ -1598,7 +1598,7 @@ async function aiLookupInhabitant(){
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 500,
         messages: [{
           role: 'user',
