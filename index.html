@@ -234,6 +234,10 @@ tr:last-child td{border-bottom:none}
       
       <span class="page-title" id="page-title">Dashboard</span>
     </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <select id="tank-switcher" onchange="switchTank(this.value)" style="background:var(--s2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:0.82rem;max-width:160px">
+      </select>
+    </div>
     <div class="topbar-actions">
       <span id="alert-indicator" style="display:none;align-items:center;gap:6px;font-size:0.78rem;color:var(--red)"><span class="alert-dot"></span>Alerts</span>
       <button class="btn btn-sm btn-ghost" onclick="exportCSV()">⬇ Export</button>
@@ -457,8 +461,109 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
 
+  <!-- SETTINGS -->
+    <div id="panel-settings" class="panel">
+
+      <!-- Tank Manager -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-label">🐠 My Tanks</div>
+        <div id="tank-list" style="margin-bottom:14px"></div>
+        <button class="btn btn-primary btn-sm" onclick="clearTankForm();openModal('tank-modal')">+ Add Tank</button>
+      </div>
+
+      <!-- AI Settings -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-label">🤖 AI Assistant</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Auto-analyze after logging</div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:2px">AI gives instant advice every time you save a reading</div>
+            </div>
+            <div id="toggle-ai-auto" onclick="toggleSetting('ai_auto')" style="width:48px;height:26px;border-radius:26px;cursor:pointer;transition:0.3s;border:1px solid var(--border);position:relative;flex-shrink:0">
+              <div style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:0.3s" id="thumb-ai-auto"></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Show AI on Dashboard</div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:2px">Display Reef Assistant chat on the main dashboard</div>
+            </div>
+            <div id="toggle-ai-dashboard" onclick="toggleSetting('ai_dashboard')" style="width:48px;height:26px;border-radius:26px;cursor:pointer;transition:0.3s;border:1px solid var(--border);position:relative;flex-shrink:0">
+              <div style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:0.3s" id="thumb-ai-dashboard"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-label">🔔 Notifications</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Parameter alerts</div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:2px">Notify when a reading is outside target range</div>
+            </div>
+            <div id="toggle-notif-params" onclick="toggleSetting('notif_params')" style="width:48px;height:26px;border-radius:26px;cursor:pointer;transition:0.3s;border:1px solid var(--border);position:relative;flex-shrink:0">
+              <div style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:0.3s" id="thumb-notif-params"></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Reminder alerts</div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:2px">Notify when a reminder is due on app open</div>
+            </div>
+            <div id="toggle-notif-reminders" onclick="toggleSetting('notif_reminders')" style="width:48px;height:26px;border-radius:26px;cursor:pointer;transition:0.3s;border:1px solid var(--border);position:relative;flex-shrink:0">
+              <div style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:0.3s" id="thumb-notif-reminders"></div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="requestNotificationPermission();toast('Requesting permission...')">🔔 Re-enable Notifications</button>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <div class="card">
+        <div class="section-label">💾 Data</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export All Data as CSV</button>
+          <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Clear All Parameter Readings</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
+</div>
+
+<!-- Tank Modal -->
+<div class="modal-bg" id="tank-modal">
+  <div class="modal">
+    <div class="modal-title">🐠 Add / Edit Tank</div>
+    <button class="modal-close" onclick="closeModal('tank-modal')">✕</button>
+    <div class="form-grid">
+      <div class="fg"><label>Tank Name</label><input type="text" id="tank-name-input" placeholder="My Reef, Frag Tank..."></div>
+      <div class="fg"><label>Display Volume (gal)</label><input type="number" id="tank-vol-input" placeholder="180"></div>
+      <div class="fg"><label>Sump Volume (gal)</label><input type="number" id="tank-sump-input" placeholder="40"></div>
+      <div class="fg"><label>Tank Type</label>
+        <select id="tank-type-input">
+          <option>Saltwater Reef</option>
+          <option>FOWLR</option>
+          <option>Freshwater</option>
+          <option>Planted</option>
+          <option>Brackish</option>
+          <option>Quarantine</option>
+          <option>Frag Tank</option>
+        </select>
+      </div>
+      <div class="fg"><label>Date Started</label><input type="date" id="tank-started-input"></div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label>Notes</label><input type="text" id="tank-notes-input" placeholder="Any notes about this tank..."></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveTank()">Save Tank</button>
+      <button class="btn btn-ghost" onclick="closeModal('tank-modal')">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <!-- MODALS -->
@@ -1268,6 +1373,185 @@ function checkAllReminders(){
 
 
 
+
+// ═══════════════════════════════════════
+// MULTI-TANK MANAGEMENT
+// ═══════════════════════════════════════
+let tanks = JSON.parse(localStorage.getItem('rt_tanks')||'[]');
+let currentTankId = localStorage.getItem('rt_current_tank')||null;
+
+function saveTanksData(){localStorage.setItem('rt_tanks',JSON.stringify(tanks));}
+
+function getCurrentTank(){
+  if(!tanks.length) return null;
+  return tanks.find(t=>t.id===currentTankId)||tanks[0];
+}
+
+function switchTank(id){
+  if(currentTankId === id) return;
+  currentTankId = id;
+  localStorage.setItem('rt_current_tank', id);
+  updateSidebarTankName();
+  renderTankList();
+  renderSettings();
+  loadAll().then(()=>{
+    renderDashboard();
+    toast('🐠 Switched to '+getCurrentTank()?.name);
+  });
+}
+
+function updateSidebarTankName(){
+  const tank = getCurrentTank();
+  if(!tank) return;
+  const footer = document.querySelector('.sidebar-footer');
+  if(footer) footer.firstChild.textContent = tank.volume+'gal '+tank.type+' · '+tank.name;
+  const sub = document.getElementById('tank-subtitle');
+  if(sub) sub.textContent = tank.name+' · '+tank.volume+' Gallons';
+  // Update topbar switcher
+  const switcher = document.getElementById('tank-switcher');
+  if(switcher){
+    switcher.innerHTML = tanks.length ? tanks.map(t=>`<option value="${t.id}" ${t.id===currentTankId?'selected':''}>${t.name}</option>`).join('') : '<option>My Aquarium</option>';
+  }
+}
+
+function initTankSwitcher(){
+  // If no tanks exist yet create default from settings
+  const s = getSettings();
+  if(!tanks.length){
+    const defaultTank = {
+      id:'default',
+      name: s.tank_name||'My Aquarium',
+      volume: s.tank_vol||180,
+      sump: s.sump_vol||40,
+      type:'Saltwater Reef',
+      started:'',
+      notes:''
+    };
+    tanks.push(defaultTank);
+    currentTankId = 'default';
+    saveTanksData();
+    localStorage.setItem('rt_current_tank','default');
+  }
+  updateSidebarTankName();
+}
+
+function saveTank(){
+  const name = document.getElementById('tank-name-input')?.value?.trim();
+  if(!name){toast('Enter a tank name');return;}
+  if(window._editingTankId){
+    // Edit existing tank
+    const tank = tanks.find(t=>t.id===window._editingTankId);
+    if(tank){
+      tank.name = name;
+      tank.volume = parseFloat(document.getElementById('tank-vol-input')?.value)||180;
+      tank.sump = parseFloat(document.getElementById('tank-sump-input')?.value)||0;
+      tank.type = document.getElementById('tank-type-input')?.value||'Saltwater Reef';
+      tank.started = document.getElementById('tank-started-input')?.value||'';
+      tank.notes = document.getElementById('tank-notes-input')?.value||'';
+      saveTanksData();
+      window._editingTankId = null;
+      closeModal('tank-modal');
+      toast('✓ Tank updated!');
+      updateSidebarTankName();
+      renderSettings();
+      return;
+    }
+  }
+  // Add new tank
+  const tank = {
+    id: Date.now().toString(),
+    name,
+    volume: parseFloat(document.getElementById('tank-vol-input')?.value)||180,
+    sump: parseFloat(document.getElementById('tank-sump-input')?.value)||0,
+    type: document.getElementById('tank-type-input')?.value||'Saltwater Reef',
+    started: document.getElementById('tank-started-input')?.value||'',
+    notes: document.getElementById('tank-notes-input')?.value||''
+  };
+  tanks.push(tank);
+  saveTanksData();
+  if(!currentTankId){currentTankId=tank.id;localStorage.setItem('rt_current_tank',tank.id);}
+  closeModal('tank-modal');
+  toast('🐠 '+name+' added!');
+  updateSidebarTankName();
+  renderSettings();
+}
+
+function clearTankForm(){
+  window._editingTankId = null;
+  const fields = ['tank-name-input','tank-vol-input','tank-sump-input','tank-notes-input','tank-started-input'];
+  fields.forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  const type = document.getElementById('tank-type-input');
+  if(type) type.value = 'Saltwater Reef';
+}
+
+function editTank(id){
+  const tank = tanks.find(t=>t.id===id);
+  if(!tank) return;
+  // Pre-fill modal with existing values
+  document.getElementById('tank-name-input').value = tank.name;
+  document.getElementById('tank-vol-input').value = tank.volume;
+  document.getElementById('tank-sump-input').value = tank.sump||0;
+  document.getElementById('tank-type-input').value = tank.type||'Saltwater Reef';
+  document.getElementById('tank-started-input').value = tank.started||'';
+  document.getElementById('tank-notes-input').value = tank.notes||'';
+  // Store editing id
+  window._editingTankId = id;
+  openModal('tank-modal');
+}
+
+function deleteTank(id){
+  if(tanks.length<=1){toast('Cannot delete your only tank');return;}
+  const tank = tanks.find(t=>t.id===id);
+  if(!tank) return;
+  // Show inline confirmation in the tank card
+  const existing = document.getElementById('delete-confirm-'+id);
+  if(existing){
+    // Already showing confirm - do the delete
+    tanks = tanks.filter(t=>t.id!==id);
+    saveTanksData();
+    if(currentTankId===id){currentTankId=tanks[0].id;localStorage.setItem('rt_current_tank',tanks[0].id);}
+    renderSettings();
+    updateSidebarTankName();
+    toast('Tank removed');
+  } else {
+    // Show confirm buttons
+    const list = document.getElementById('tank-list');
+    const cards = list.querySelectorAll('[data-tank-id]');
+    cards.forEach(c=>c.querySelector('.delete-confirm')?.remove());
+    const card = list.querySelector('[data-tank-id="'+id+'"]');
+    if(card){
+      const confirm = document.createElement('div');
+      confirm.id = 'delete-confirm-'+id;
+      confirm.className = 'delete-confirm';
+      confirm.style.cssText = 'margin-top:8px;display:flex;gap:8px;align-items:center;font-size:0.8rem;color:var(--red)';
+      confirm.innerHTML = `<span>Delete "${tank.name}"?</span><button class="btn btn-sm btn-danger" ontouchend="event.preventDefault();deleteTank('${id}')" onclick="deleteTank('${id}')">Yes, delete</button><button class="btn btn-sm btn-ghost" ontouchend="event.preventDefault();renderSettings()" onclick="renderSettings()">Cancel</button>`;
+      card.appendChild(confirm);
+    }
+  }
+}
+
+function renderTankList(){
+  const list = document.getElementById('tank-list');
+  if(!list) return;
+  if(!tanks.length){
+    list.innerHTML = '<div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px">No tanks added yet. Your current tank is set up in Tank Info below.</div>';
+    return;
+  }
+  list.innerHTML = tanks.map(t=>`
+    <div data-tank-id="${t.id}" style="display:flex;flex-direction:column;padding:10px 14px;background:${t.id===currentTankId?'var(--s3)':'var(--s2)'};border:1px solid ${t.id===currentTankId?'var(--cyan)':'var(--border)'};border-radius:8px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div onclick="switchTank('${t.id}')" style="cursor:pointer;flex:1">
+        <div style="font-weight:600;font-size:0.9rem;color:${t.id===currentTankId?'var(--cyan)':'var(--text)'}">${t.name} ${t.id===currentTankId?'✓':''}</div>
+        <div style="font-size:0.75rem;color:var(--muted)">${t.volume}gal ${t.type}${t.sump?' + '+t.sump+'gal sump':''}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-ghost" style="padding:4px 10px;font-size:0.75rem" ontouchend="event.preventDefault();editTank('${t.id}')" onclick="editTank('${t.id}')">✏️</button>
+        <button class="del-btn" ontouchend="event.preventDefault();deleteTank('${t.id}')" onclick="deleteTank('${t.id}')">✕</button>
+      </div>
+    </div></div>
+  `).join('');
+}
+
 // ═══════════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════════
@@ -1299,6 +1583,7 @@ function toggleSetting(key){
   s[key] = !s[key];
   localStorage.setItem('rt_settings', JSON.stringify(s));
   applySettings();
+  initTankSwitcher();
   renderSettings();
 }
 
@@ -1323,6 +1608,7 @@ function applySettings(){
 }
 
 function renderSettings(){
+  renderTankList();
   const s = getSettings();
   const toggleKeys = ['ai_auto','ai_dashboard','notif_params','notif_reminders'];
   toggleKeys.forEach(key => {
@@ -1454,13 +1740,15 @@ let aiChatHistory = [];
 
 function getTankContext(){
   const T = getTargets();
-  const recentLogs = [...logs].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,50);
+  const recentLogs = [...logs].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,200);
   const paramSummary = PARAMS.map(p=>{
-    const latest = recentLogs.find(l=>l.param===p.key);
-    if(!latest) return null;
+    const pLogs = recentLogs.filter(l=>l.param===p.key).slice(0,5);
+    if(!pLogs.length) return null;
+    const latest = pLogs[0];
     const t = T[p.key];
-    const st = latest.value > t.high ? 'HIGH' : latest.value < t.low ? 'LOW' : 'OK';
-    return `${p.name}: ${latest.value} ${latest.unit} (${st}, target ${t.target}, range ${t.low}-${t.high}, measured ${timeAgo(latest.date)})`;
+    const st = latest.value > t.high ? 'HIGH ⚠️' : latest.value < t.low ? 'LOW ⚠️' : 'OK ✅';
+    const history = pLogs.map(l=>`${l.value} ${l.unit} (${timeAgo(l.date)})`).join(', ');
+    return `${p.name}: CURRENT=${latest.value} ${latest.unit} (${st}) | Last 5: ${history} | Target ${t.target}, range ${t.low}-${t.high}`;
   }).filter(Boolean).join('\n');
 
   const recentWC = [...waterChanges].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3)
@@ -1953,6 +2241,7 @@ async function init(){
   setupReminders();
   checkReminderNotifications();
   applySettings();
+  initTankSwitcher();
   renderSettings();
   kasaStates = JSON.parse(localStorage.getItem('kasa_states')||'{}');
   // Request notification permission after 2 seconds
@@ -2003,15 +2292,25 @@ window.addEventListener("click",function(e){
 
 init();
 
-// Add touch listeners for mobile nav
-document.querySelectorAll(".bottom-nav-item,.bottom-nav-more,.more-item").forEach(el=>{
-  el.addEventListener("touchend",function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    this.click();
-  },{passive:false});
-});
-// end
+// Fix scroll vs tap on mobile - only fire click if not scrolling
+(function(){
+  let startY = 0;
+  let startX = 0;
+  document.querySelectorAll(".bottom-nav-item,.bottom-nav-more,.more-item").forEach(el=>{
+    el.addEventListener("touchstart",function(e){
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+    },{passive:true});
+    el.addEventListener("touchend",function(e){
+      const dy = Math.abs(e.changedTouches[0].clientY - startY);
+      const dx = Math.abs(e.changedTouches[0].clientX - startX);
+      if(dy < 10 && dx < 10){
+        e.preventDefault();
+        this.click();
+      }
+    },{passive:false});
+  });
+})();
 </script>
 </body>
 </html>
