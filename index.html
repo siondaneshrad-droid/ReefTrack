@@ -1680,7 +1680,7 @@ async function sendDashAIMsg(message){
   try{
     const controller = new AbortController();
     const timeout = setTimeout(()=>controller.abort(), 30000);
-    const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
+    const response = await fetch('https://reeftrack-kasa.mdnvapps.workers.dev/claude', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -1806,7 +1806,7 @@ async function askAI(message){
 
   try {
     const systemPrompt = getTankContext();
-    const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
+    const response = await fetch('https://reeftrack-kasa.mdnvapps.workers.dev/claude', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1880,7 +1880,7 @@ async function aiLookupInhabitant(){
   }
 
   try {
-    const response = await fetch('https://reeftrack-kasa.siondaneshrad.workers.dev/claude', {
+    const response = await fetch('https://reeftrack-kasa.mdnvapps.workers.dev/claude', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1954,7 +1954,7 @@ async function aiLookupInhabitant(){
 // ═══════════════════════════════════════
 const KASA_IP = '192.168.4.97';
 const KASA_PORT = 9999;
-const KASA_WORKER = 'https://reeftrack-kasa.siondaneshrad.workers.dev';
+const KASA_WORKER = 'https://reeftrack-kasa.mdnvapps.workers.dev';
 const KASA_PLUGS = [
   {index:0, name:'ReefMat',     icon:'🧹'},
   {index:1, name:'Skimmer',     icon:'💨'},
